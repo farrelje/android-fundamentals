@@ -3,38 +3,34 @@ package android.learning
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.edittext.*
+import kotlinx.android.synthetic.main.textview.*
 import java.util.*
 
 class MainActivity : AppCompatActivity() {
     // startup entry of Android app
+    // CTRL + ALT + L to auto-format code
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-
-        val list = listOf(5, 3, 6, 7, 9, 1)
-        sortList(list)
-        Log.d("MainActivity", "Hello, this is our first log message")
-        println(list)
-    }
-
-    private fun sortList(list: List<Int>) {
-        for(i in list.indices) {
-            for(j in 0..list.size - 2) {
-                if(list[j] > list[j+1]) {
-                    Collections.swap(list, j, j+1)
-                }
+        setContentView(R.layout.edittext)
+        // Old Java
+        //val btnApply = findViewById<Button>(R.id.btnSubmit)
+        btnAdd.setOnClickListener {
+            var firstNum: Int?
+            var secondNumber: Int?
+            try {
+                firstNum = etNum1.text.toString().toInt()
+                secondNumber =  etNum2.text.toString().toInt()
+                val result = firstNum + secondNumber
+                tvResult.text = result.toString()
+            } catch (e: NumberFormatException) {
+                Log.d("MainActivity","$e - Please use valid numbers only")
             }
+            // string can go to editable, but not other way around
         }
-    }
 
-    override fun onPause() {
-        super.onPause()
-        println("Paused")
-    }
 
-    override fun onRestart() {
-        super.onRestart()
-        println("Restarted")
     }
 
     // Lifecycle methods:
