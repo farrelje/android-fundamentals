@@ -3,9 +3,11 @@ package android.learning
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.widget.RadioButton
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.edittext.*
 import kotlinx.android.synthetic.main.imageview.*
+import kotlinx.android.synthetic.main.radio_checkbox.*
 import kotlinx.android.synthetic.main.textview.*
 import java.util.*
 
@@ -14,10 +16,20 @@ class MainActivity : AppCompatActivity() {
     // CTRL + ALT + L to auto-format code
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.imageview)
+        setContentView(R.layout.radio_checkbox)
 
-        btnAddImage.setOnClickListener {
-            ivImage.setImageResource(R.drawable.front)
+        btnOrder.setOnClickListener {
+            val checkedMeatId = rgMeat.checkedRadioButtonId
+            val meat = findViewById<RadioButton>(checkedMeatId)
+            val cheese = cbCheese.isChecked
+            val onions = cbOnions.isChecked
+            val salad = cbSalad.isChecked
+            val orderString = "You ordered a burger with:\n" +
+                    "${meat.text}," +
+                    (if(cheese) "cheese " else "") +
+                    (if(onions) "onions " else "") +
+                    (if(salad) "salad " else "")
+            tvOrder.text = orderString
         }
 
     }
