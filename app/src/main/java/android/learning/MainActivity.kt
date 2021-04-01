@@ -1,11 +1,14 @@
 package android.learning
 
+import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.widget.RadioButton
 import android.widget.Toast
+import androidx.core.app.ActivityCompat
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.custom_toast.*
 import kotlinx.android.synthetic.main.edittext.*
@@ -22,15 +25,54 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        btnApply.setOnClickListener {
-            val name: String = etName.text.toString()
-            val age: Int = etAge.text.toString().toInt()
-            val country: String = etCountry.text.toString()
-            val person = Person(name, age, country)
-            Intent(this, SecondActivity::class.java).also {
-                // Use these conventions to pass data
-                it.putExtra("EXTRA_PERSON", person)
-                startActivity(it)
+        btnRequestPermissions.setOnClickListener {
+            requestPermissions()
+        }
+    }
+
+    private fun hasWriteExternalStoragePermission() =
+            ActivityCompat.
+            checkSelfPermission(
+                    this, Manifest.permission.WRITE_EXTERNAL_STORAGE
+            ) == PackageManager.PERMISSION_GRANTED
+
+    private fun hasLocationForeGroundPermission() =
+            ActivityCompat.
+            checkSelfPermission(
+                    this, Manifest.permission.ACCESS_COARSE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
+
+    // Might crash without a check for Android Q or not
+    private fun hasLocationBackgroundPermission() =
+            ActivityCompat.
+            checkSelfPermission(
+                    this, Manifest.permission.ACCESS_BACKGROUND_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
+
+    private fun requestPermissions() {
+        var permissionsToRequest = mutableListOf<String>()
+        if(!hasWriteExternalStoragePermission()) {
+            permissionsToRequest.add(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+        }
+        if(!hasLocationForeGroundPermission()) {
+            permissionsToRequest.add(Manifest.permission.ACCESS_COARSE_LOCATION)
+        }
+        if(!hasLocationBackgroundPermission()) {
+            permissionsToRequest.add(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
+        }
+        // Activity context is important
+        if(permissionsToRequest.isNotEmpty()) {
+            ActivityCompat.requestPermissions(this, permissionsToRequest.toTypedArray(), 0)
+        }
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if(requestCode == 0 && grantResults.isNotEmpty()) {
+            for(i in grantResults.indices) {
+                if(grantResults[i] == PackageManager.PERMISSION_GRANTED) {
+                    Log.d("PermissionsRequest", "${permissions[i]} granted.")
+                }
             }
         }
     }
