@@ -1,6 +1,7 @@
 package android.learning
 
 import android.Manifest
+import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
 import androidx.appcompat.app.AppCompatActivity
@@ -25,57 +26,27 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        btnRequestPermissions.setOnClickListener {
-            requestPermissions()
-        }
-    }
-
-    private fun hasWriteExternalStoragePermission() =
-            ActivityCompat.
-            checkSelfPermission(
-                    this, Manifest.permission.WRITE_EXTERNAL_STORAGE
-            ) == PackageManager.PERMISSION_GRANTED
-
-    private fun hasLocationForeGroundPermission() =
-            ActivityCompat.
-            checkSelfPermission(
-                    this, Manifest.permission.ACCESS_COARSE_LOCATION
-            ) == PackageManager.PERMISSION_GRANTED
-
-    // Might crash without a check for Android Q or not
-    private fun hasLocationBackgroundPermission() =
-            ActivityCompat.
-            checkSelfPermission(
-                    this, Manifest.permission.ACCESS_BACKGROUND_LOCATION
-            ) == PackageManager.PERMISSION_GRANTED
-
-    private fun requestPermissions() {
-        var permissionsToRequest = mutableListOf<String>()
-        if(!hasWriteExternalStoragePermission()) {
-            permissionsToRequest.add(Manifest.permission.WRITE_EXTERNAL_STORAGE)
-        }
-        if(!hasLocationForeGroundPermission()) {
-            permissionsToRequest.add(Manifest.permission.ACCESS_COARSE_LOCATION)
-        }
-        if(!hasLocationBackgroundPermission()) {
-            permissionsToRequest.add(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
-        }
-        // Activity context is important
-        if(permissionsToRequest.isNotEmpty()) {
-            ActivityCompat.requestPermissions(this, permissionsToRequest.toTypedArray(), 0)
-        }
-    }
-
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if(requestCode == 0 && grantResults.isNotEmpty()) {
-            for(i in grantResults.indices) {
-                if(grantResults[i] == PackageManager.PERMISSION_GRANTED) {
-                    Log.d("PermissionsRequest", "${permissions[i]} granted.")
-                }
+        btnTakePhoto.setOnClickListener {
+            // allow general actions to get content
+            Intent(Intent.ACTION_GET_CONTENT).also {
+                it.type = "image/*" // MIME type
+                // Look for a result - no specific activity as it's not under our control
+                startActivityForResult(it, 0)
             }
         }
+
     }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if(resultCode == Activity.RESULT_OK && requestCode == 0) {
+            // get data from intent, e.g. file path
+            var uri = data?.data
+            ivPhoto.setImageURI(uri)
+        }
+    }
+
+
 
     // Lifecycle methods:
     // onCreate()
