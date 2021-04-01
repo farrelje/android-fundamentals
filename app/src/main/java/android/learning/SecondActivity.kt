@@ -6,6 +6,7 @@ import android.os.PersistableBundle
 import androidx.appcompat.app.AppCompatActivity
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.activity_second.*
+import java.io.Serializable
 
 class SecondActivity : AppCompatActivity() {
     // New activities must be registered in the manifest
@@ -13,15 +14,8 @@ class SecondActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_second)
 
-        btnBack.setOnClickListener {
-            finish()
-        }
-
-        btnNext.setOnClickListener {
-            Intent(this, ThirdActivity::class.java).also {
-                startActivity(it)
-            }
-        }
-
+        val person: Serializable = intent.getSerializableExtra("EXTRA_PERSON") as Person
+        val personString: String = person.toString()
+        tvPerson.text = personString
     }
 }

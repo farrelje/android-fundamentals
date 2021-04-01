@@ -22,10 +22,14 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        btnOpenActivity.setOnClickListener {
-            // Need an intent
-            // Create reference to intent and "also" start "it"
+        btnApply.setOnClickListener {
+            val name: String = etName.text.toString()
+            val age: Int = etAge.text.toString().toInt()
+            val country: String = etCountry.text.toString()
+            val person = Person(name, age, country)
             Intent(this, SecondActivity::class.java).also {
+                // Use these conventions to pass data
+                it.putExtra("EXTRA_PERSON", person)
                 startActivity(it)
             }
         }
