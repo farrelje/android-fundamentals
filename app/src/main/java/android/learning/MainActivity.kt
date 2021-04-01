@@ -1,5 +1,6 @@
 package android.learning
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -19,21 +20,15 @@ class MainActivity : AppCompatActivity() {
     // CTRL + ALT + L to auto-format code
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.toasts)
+        setContentView(R.layout.activity_main)
 
-        btnShowToast.setOnClickListener {
-            // activity (this) or app context doesn't matter for toast
-            // but consider using application context otherwise to prevent memory leaks
-            // Standard toast
-            //Toast.makeText(applicationContext, "Hi, I'm a toast!", Toast.LENGTH_LONG).show()
-            Toast(this).apply {
-                duration = Toast.LENGTH_LONG
-                // render custom toast
-                view = layoutInflater.inflate(R.layout.custom_toast, cToast)
-                show()
+        btnOpenActivity.setOnClickListener {
+            // Need an intent
+            // Create reference to intent and "also" start "it"
+            Intent(this, SecondActivity::class.java).also {
+                startActivity(it)
             }
         }
-
     }
 
     // Lifecycle methods:
