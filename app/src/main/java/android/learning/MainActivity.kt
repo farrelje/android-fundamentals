@@ -11,11 +11,9 @@ import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.widget.AdapterView
-import android.widget.ArrayAdapter
-import android.widget.RadioButton
-import android.widget.Toast
+import android.widget.*
 import androidx.core.app.ActivityCompat
+import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.custom_toast.*
 import kotlinx.android.synthetic.main.edittext.*
@@ -31,24 +29,27 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        // Spinners are basically dropdowns
-        val customList = listOf("First", "Second", "Third", "Fourth")
-        val adapter = ArrayAdapter<String>(this, R.layout.support_simple_spinner_dropdown_item, customList)
-        spMonths.adapter = adapter
-        // onitemselected needs an anonymous object first to create a listener
-        spMonths.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                Toast.makeText(
-                        this@MainActivity,
-                        "You selected ${parent?.getItemAtPosition(position).toString()}",
-                        Toast.LENGTH_LONG).show()
-            }
 
-            override fun onNothingSelected(parent: AdapterView<*>?) {
+        // Recyclerviews need to be imported with Gradle, but they are much more efficient
+        var todoList = mutableListOf(
+            Todo("Cook lentils", false),
+            Todo("Make Spätzle", false),
+            Todo("Add spices to lentils", false)
+        )
 
-            }
+        val adapter = TodoAdapter(todoList)
+        rvTodos.adapter = adapter
+        rvTodos.layoutManager = LinearLayoutManager(this)
 
+        btnAddTodo.setOnClickListener {
+            val title = etTodo.text.toString()
+            val todo = Todo(title, false)
+            todoList.add(todo)
+            // update view
+            adapter.notifyItemInserted(todoList.size - 1)
+            // notifydatasetchanged updates the entire set, which is slower
         }
+
     }
 
 
