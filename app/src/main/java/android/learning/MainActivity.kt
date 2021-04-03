@@ -13,6 +13,7 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.*
 import androidx.core.app.ActivityCompat
+import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.custom_toast.*
@@ -30,34 +31,31 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        // Replace fragments in frame
         val firstFragment = FirstFragment()
         val secondFragment = SecondFragment()
+        val thirdFragment = ThirdFragment()
 
-        // fragment transaction - swapping is a transaction
-        supportFragmentManager.beginTransaction().apply {
-            replace(R.id.flFragment, firstFragment)
-            commit() // need to commit as well to do something
-        }
+        setCurrentFragment(firstFragment)
 
-        btnFragment1.setOnClickListener {
-            supportFragmentManager.beginTransaction().apply {
-                replace(R.id.flFragment, firstFragment)
-                // Pressing back will crash the app, because we have no idea what to go back to
-                // This adds the fragment to the stack
-                addToBackStack(null)
-                commit() // need to commit as well to do something
+        bottomNavigationView.setOnNavigationItemSelectedListener {
+            when(it.itemId) {
+                R.id.miHome -> setCurrentFragment(firstFragment)
+                R.id.miMessages -> setCurrentFragment(secondFragment)
+                R.id.miProfile -> setCurrentFragment(thirdFragment)
             }
+            true // must return something in lambda, but return statement not needed
         }
 
-        btnFragment2.setOnClickListener {
-            supportFragmentManager.beginTransaction().apply {
-                replace(R.id.flFragment, secondFragment)
-                addToBackStack(null)
-                commit() // need to commit as well to do something
-            }
-        }
+        bottomNavigationView.getOrCreateBadge(R.id.miMessages).apply {
+            number = 10
+            isVisible = true
 
+        }
+    }
+
+    private fun setCurrentFragment(fragment: Fragment) = supportFragmentManager.beginTransaction().apply {
+        replace(R.id.flFragment, fragment)
+        commit()
     }
 
 
