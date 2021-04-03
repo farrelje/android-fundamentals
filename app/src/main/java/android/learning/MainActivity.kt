@@ -31,32 +31,21 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val firstFragment = FirstFragment()
-        val secondFragment = SecondFragment()
-        val thirdFragment = ThirdFragment()
+        val images = listOf(
+            R.drawable.hugh,
+            R.drawable.jonny,
+            R.drawable.sid,
+            R.drawable.spencer
+        )
 
-        setCurrentFragment(firstFragment)
+        val adapter = ViewPagerAdapter(images)
+        viewPager.adapter = adapter
 
-        bottomNavigationView.setOnNavigationItemSelectedListener {
-            when(it.itemId) {
-                R.id.miHome -> setCurrentFragment(firstFragment)
-                R.id.miMessages -> setCurrentFragment(secondFragment)
-                R.id.miProfile -> setCurrentFragment(thirdFragment)
-            }
-            true // must return something in lambda, but return statement not needed
-        }
-
-        bottomNavigationView.getOrCreateBadge(R.id.miMessages).apply {
-            number = 10
-            isVisible = true
-
-        }
+        viewPager.beginFakeDrag()
+        viewPager.fakeDragBy(-10f)
+        viewPager.endFakeDrag()
     }
 
-    private fun setCurrentFragment(fragment: Fragment) = supportFragmentManager.beginTransaction().apply {
-        replace(R.id.flFragment, fragment)
-        commit()
-    }
 
 
     // Lifecycle methods:
