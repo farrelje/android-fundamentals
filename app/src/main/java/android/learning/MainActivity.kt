@@ -15,6 +15,8 @@ import android.widget.*
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.tabs.TabLayout
+import com.google.android.material.tabs.TabLayoutMediator
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.custom_toast.*
 import kotlinx.android.synthetic.main.edittext.*
@@ -41,9 +43,25 @@ class MainActivity : AppCompatActivity() {
         val adapter = ViewPagerAdapter(images)
         viewPager.adapter = adapter
 
-        viewPager.beginFakeDrag()
-        viewPager.fakeDragBy(-10f)
-        viewPager.endFakeDrag()
+        TabLayoutMediator(tabLayout, viewPager) {
+            tab, position ->
+            tab.text = "Tab ${position + 1}"
+        }.attach()
+
+        tabLayout.addOnTabSelectedListener( object : TabLayout.OnTabSelectedListener {
+            override fun onTabSelected(tab: TabLayout.Tab?) {
+                Toast.makeText(this@MainActivity, "Re-selected ${tab?.text}", Toast.LENGTH_SHORT).show()
+            }
+
+            override fun onTabUnselected(tab: TabLayout.Tab?) {
+                Toast.makeText(this@MainActivity, "Unselected ${tab?.text}", Toast.LENGTH_SHORT).show()
+
+            }
+
+            override fun onTabReselected(tab: TabLayout.Tab?) {
+                Toast.makeText(this@MainActivity, "Selected ${tab?.text}", Toast.LENGTH_SHORT).show()
+            }
+        })
     }
 
 
