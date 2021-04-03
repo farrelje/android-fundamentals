@@ -30,24 +30,32 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        // Recyclerviews need to be imported with Gradle, but they are much more efficient
-        var todoList = mutableListOf(
-            Todo("Cook lentils", false),
-            Todo("Make Spätzle", false),
-            Todo("Add spices to lentils", false)
-        )
+        // Replace fragments in frame
+        val firstFragment = FirstFragment()
+        val secondFragment = SecondFragment()
 
-        val adapter = TodoAdapter(todoList)
-        rvTodos.adapter = adapter
-        rvTodos.layoutManager = LinearLayoutManager(this)
+        // fragment transaction - swapping is a transaction
+        supportFragmentManager.beginTransaction().apply {
+            replace(R.id.flFragment, firstFragment)
+            commit() // need to commit as well to do something
+        }
 
-        btnAddTodo.setOnClickListener {
-            val title = etTodo.text.toString()
-            val todo = Todo(title, false)
-            todoList.add(todo)
-            // update view
-            adapter.notifyItemInserted(todoList.size - 1)
-            // notifydatasetchanged updates the entire set, which is slower
+        btnFragment1.setOnClickListener {
+            supportFragmentManager.beginTransaction().apply {
+                replace(R.id.flFragment, firstFragment)
+                // Pressing back will crash the app, because we have no idea what to go back to
+                // This adds the fragment to the stack
+                addToBackStack(null)
+                commit() // need to commit as well to do something
+            }
+        }
+
+        btnFragment2.setOnClickListener {
+            supportFragmentManager.beginTransaction().apply {
+                replace(R.id.flFragment, secondFragment)
+                addToBackStack(null)
+                commit() // need to commit as well to do something
+            }
         }
 
     }
