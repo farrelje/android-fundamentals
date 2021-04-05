@@ -1,11 +1,12 @@
 package android.learning
 
 import android.Manifest
-import android.app.Activity
-import android.app.AlertDialog
+import android.app.*
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Color
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -15,6 +16,8 @@ import android.view.View
 import android.widget.*
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.core.app.ActivityCompat
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.tabs.TabLayout
@@ -33,44 +36,49 @@ class MainActivity : AppCompatActivity() {
     // startup entry of Android app
     // CTRL + ALT + L to auto-format code
     // Allows us to have an alternative promise to a nullable, which we don't have to check for
-    lateinit var toggle: ActionBarDrawerToggle
+    val CHANNEL_ID = "channelID"
+    val CHANNEL_NAME = "channelName"
+    val NOTIFICATION_ID: Int = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main2)
-        // Three modes:
-        // Public - fully accessible (doesn't exist anymore?)
-        // Private - no other app can access
-        // Append -
+        // Notifications appear in top bar, great for info/sales, etc
+        // Create notification channel
+        createNotificationChannel()
+        // Allow outside app to activate code
+        val intent = Intent(this, MainActivity::class.java)
+        val pendingIntent = TaskStackBuilder.create(this).run {
+            addNextIntentWithParentStack(intent)
+            getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT)
+        }
+        // Build the notification
+        val notification = NotificationCompat.Builder(this, CHANNEL_ID).setContentTitle("Awesome notification")
+                .setContentText("This is the context text")
+                .setSmallIcon(R.drawable.ic_start)
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setContentIntent(pendingIntent) // allow the notification to be clickable and lead to the app
+                .build()
 
-        // Only use this for preferences, not lots of data. Use a database otherwise
-        // Maybe login tokens?
-        val sharedPref = getSharedPreferences("myPref", Context.MODE_PRIVATE)
-        val editor = sharedPref.edit()
+        val notificationManager = NotificationManagerCompat.from(this)
 
-        btnSave.setOnClickListener {
-            val name = etName.text.toString()
-            val age = etAge.text.toString().toInt()
-            val isAdult = cbAdult.isChecked
+        btnShowNotification.setOnClickListener {
+            notificationManager.notify(NOTIFICATION_ID, notification)
+        }
+    }
 
-            editor.apply {
-                putString("name", name)
-                putInt("age", age)
-                putBoolean("isAdult", isAdult)
-                apply() // editor's apply - write; this is async. commit() is synchro
+    fun createNotificationChannel() {
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel(CHANNEL_ID, CHANNEL_NAME,
+                    NotificationManager.IMPORTANCE_DEFAULT).apply {
+                        // Change LED colour!
+                        lightColor = Color.GREEN
+                        enableLights(true)
             }
-
+            // Default return type is any - must cast as NM
+            val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            manager.createNotificationChannel(channel)
         }
-
-        btnLoad.setOnClickListener {
-            val name = sharedPref.getString("name", null)
-            val age = sharedPref.getInt("age", 0)
-            val isAdult = sharedPref.getBoolean("isAdult", false)
-            etName.setText(name)
-            etAge.setText(age.toString())
-            cbAdult.isChecked = isAdult
-        }
-
     }
 
 
