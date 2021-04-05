@@ -3,6 +3,7 @@ package android.learning
 import android.Manifest
 import android.app.Activity
 import android.app.AlertDialog
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import androidx.appcompat.app.AppCompatActivity
@@ -19,6 +20,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.activity_main2.*
 import kotlinx.android.synthetic.main.custom_toast.*
 import kotlinx.android.synthetic.main.edittext.*
 import kotlinx.android.synthetic.main.imageview.*
@@ -35,30 +37,40 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-        // Last two string parameters are accessibility strings
-        toggle = ActionBarDrawerToggle(this, drawerLayout, R.string.open, R.string.close)
-        // A drawer is a collapsible side menu - very useful
-        drawerLayout.addDrawerListener(toggle)
-        toggle.syncState() // make toggle usable
-        // Make it openable
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        setContentView(R.layout.activity_main2)
+        // Three modes:
+        // Public - fully accessible (doesn't exist anymore?)
+        // Private - no other app can access
+        // Append -
 
-        navView.setNavigationItemSelectedListener {
-            when(it.itemId) {
-                R.id.miItem1 -> Toast.makeText(applicationContext, "Clicked Item 1", Toast.LENGTH_SHORT).show()
-                R.id.miItem2 -> Toast.makeText(applicationContext, "Clicked Item 2", Toast.LENGTH_SHORT).show()
-                R.id.miItem3 -> Toast.makeText(applicationContext, "Clicked Item 3", Toast.LENGTH_SHORT).show()
+        // Only use this for preferences, not lots of data. Use a database otherwise
+        // Maybe login tokens?
+        val sharedPref = getSharedPreferences("myPref", Context.MODE_PRIVATE)
+        val editor = sharedPref.edit()
+
+        btnSave.setOnClickListener {
+            val name = etName.text.toString()
+            val age = etAge.text.toString().toInt()
+            val isAdult = cbAdult.isChecked
+
+            editor.apply {
+                putString("name", name)
+                putInt("age", age)
+                putBoolean("isAdult", isAdult)
+                apply() // editor's apply - write; this is async. commit() is synchro
             }
-            true
-        }
-    }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if(toggle.onOptionsItemSelected(item)) {
-            return true
         }
-        return super.onOptionsItemSelected(item)
+
+        btnLoad.setOnClickListener {
+            val name = sharedPref.getString("name", null)
+            val age = sharedPref.getInt("age", 0)
+            val isAdult = sharedPref.getBoolean("isAdult", false)
+            etName.setText(name)
+            etAge.setText(age.toString())
+            cbAdult.isChecked = isAdult
+        }
+
     }
 
 
