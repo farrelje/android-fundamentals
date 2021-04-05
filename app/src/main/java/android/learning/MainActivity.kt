@@ -43,44 +43,20 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main2)
-        // Notifications appear in top bar, great for info/sales, etc
-        // Create notification channel
-        createNotificationChannel()
-        // Allow outside app to activate code
-        val intent = Intent(this, MainActivity::class.java)
-        val pendingIntent = TaskStackBuilder.create(this).run {
-            addNextIntentWithParentStack(intent)
-            getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT)
-        }
-        // Build the notification
-        val notification = NotificationCompat.Builder(this, CHANNEL_ID).setContentTitle("Awesome notification")
-                .setContentText("This is the context text")
-                .setSmallIcon(R.drawable.ic_start)
-                .setPriority(NotificationCompat.PRIORITY_HIGH)
-                .setContentIntent(pendingIntent) // allow the notification to be clickable and lead to the app
-                .build()
 
-        val notificationManager = NotificationManagerCompat.from(this)
-
-        btnShowNotification.setOnClickListener {
-            notificationManager.notify(NOTIFICATION_ID, notification)
-        }
-    }
-
-    fun createNotificationChannel() {
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(CHANNEL_ID, CHANNEL_NAME,
-                    NotificationManager.IMPORTANCE_DEFAULT).apply {
-                        // Change LED colour!
-                        lightColor = Color.GREEN
-                        enableLights(true)
+        btnStart.setOnClickListener {
+            // Intent = task
+            Intent(this, MyIntentService::class.java).also {
+                MyIntentService.enqueueWork(this@MainActivity, it)
+                tvServiceInfo.text = "Service running"
             }
-            // Default return type is any - must cast as NM
-            val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            manager.createNotificationChannel(channel)
+        }
+
+        btnStop.setOnClickListener {
+            MyIntentService.stopService()
+            tvServiceInfo.text = "Service stopped"
         }
     }
-
 
 
     // Lifecycle methods:
