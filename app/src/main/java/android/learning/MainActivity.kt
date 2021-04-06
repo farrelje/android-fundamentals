@@ -2,6 +2,8 @@ package android.learning
 
 import android.Manifest
 import android.app.*
+import android.content.ClipData
+import android.content.ClipDescription
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -10,9 +12,7 @@ import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import android.view.Menu
-import android.view.MenuItem
-import android.view.View
+import android.view.*
 import android.widget.*
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.core.app.ActivityCompat
@@ -44,30 +44,57 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main2)
 
-        btnStart.setOnClickListener {
-            // Intent = task
-            Intent(this, MyService::class.java).also {
-                startService(it)
-                tvServiceInfo.text = "Service running"
+        llTop.setOnDragListener(dragListener)
+        llBottom.setOnDragListener(dragListener)
+
+        dragView.setOnLongClickListener {
+            val clipText = "This is our ClipData text"
+            val item = ClipData.Item(clipText)
+            val mimeTypes = arrayOf(ClipDescription.MIMETYPE_TEXT_PLAIN)
+            val data = ClipData(clipText, mimeTypes, item)
+            val dragShadowBuilder = View.DragShadowBuilder(it)
+            it.startDragAndDrop(data, dragShadowBuilder, it, 0)
+
+            it.visibility = View.INVISIBLE
+            true
+        }
+    }
+
+    val dragListener = View.OnDragListener { view, event ->
+        when(event.action) {
+            DragEvent.ACTION_DRAG_STARTED -> {
+                event.clipDescription.hasMimeType(ClipDescription.MIMETYPE_TEXT_PLAIN)
             }
+            DragEvent.ACTION_DRAG_ENTERED -> {
+                view.invalidate()
+                true
+            }
+            DragEvent.ACTION_DRAG_LOCATION -> true
+            DragEvent.ACTION_DRAG_EXITED -> {
+                view.invalidate() // update
+                true
+            }
+            DragEvent.ACTION_DROP -> {
+                // Pick up and place elsewhere
+                val item = event.clipData.getItemAt(0)
+                val dragData = item.text
+                Toast.makeText(this, dragData, Toast.LENGTH_SHORT).show()
+                view.invalidate()
+                val v = event.localState as View
+                val owner = v.parent as ViewGroup
+                owner.removeView(v)
+                val destination = view as LinearLayout
+                destination.addView(v)
+                v.visibility = View.VISIBLE
+                true
+            }
+            DragEvent.ACTION_DRAG_ENDED -> {
+                view.invalidate()
+                true
+            }
+            else -> false
         }
 
-        btnStop.setOnClickListener {
-            // Intent = task
-            Intent(this, MyService::class.java).also {
-                stopService(it)
-                tvServiceInfo.text = "Service stopped"
-            }
-        }
-
-        btnSendData.setOnClickListener {
-            // Intent = task
-            Intent(this, MyService::class.java).also {
-                val dataString = etData.text.toString()
-                it.putExtra("EXTRA_DATA", dataString)
-                startService(it)
-            }
-        }
     }
 
 
