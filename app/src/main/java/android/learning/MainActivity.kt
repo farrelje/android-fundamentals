@@ -46,15 +46,27 @@ class MainActivity : AppCompatActivity() {
 
         btnStart.setOnClickListener {
             // Intent = task
-            Intent(this, MyIntentService::class.java).also {
-                MyIntentService.enqueueWork(this@MainActivity, it)
+            Intent(this, MyService::class.java).also {
+                startService(it)
                 tvServiceInfo.text = "Service running"
             }
         }
 
         btnStop.setOnClickListener {
-            MyIntentService.stopService()
-            tvServiceInfo.text = "Service stopped"
+            // Intent = task
+            Intent(this, MyService::class.java).also {
+                stopService(it)
+                tvServiceInfo.text = "Service stopped"
+            }
+        }
+
+        btnSendData.setOnClickListener {
+            // Intent = task
+            Intent(this, MyService::class.java).also {
+                val dataString = etData.text.toString()
+                it.putExtra("EXTRA_DATA", dataString)
+                startService(it)
+            }
         }
     }
 
